@@ -223,3 +223,4 @@ dnp/
 hasil_ekstraksi/
 results/
 venv/
+.DS_Store
