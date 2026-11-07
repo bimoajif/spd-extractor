@@ -118,12 +118,12 @@ files = st.file_uploader("Pilih file PDF", type=["pdf"], accept_multiple_files=T
 if files:
     st.success(f"{len(files)} file dipilih.")
     left, right = st.columns(2)
-    if left.button("Hapus semua file", use_container_width=True):
+    if left.button("Hapus semua file", width='stretch'):
         records, notes = [], []
         st.session_state["processed"] = False
         st.session_state["uploader_key"] += 1
         st.rerun()
-    if right.button("⚙️ Proses PDF", type="primary", use_container_width=True):
+    if right.button("⚙️ Proses PDF", type="primary", width='stretch'):
         records, notes = [], []
         progress = st.progress(0)
         for i, file in enumerate(files):
@@ -151,15 +151,15 @@ if st.session_state.get("processed"):
         b.metric("Jumlah Nomor ST", f"{df['Nomor ST'].nunique():,}")
         c.metric("Total Biaya Riil", "Rp" + f"{total:,.0f}".replace(",", "."))
         st.subheader("Preview dan koreksi data")
-        edited = st.data_editor(df, use_container_width=True, hide_index=True, num_rows="dynamic")
+        edited = st.data_editor(df, width='stretch', hide_index=True, num_rows="dynamic")
         left, right = st.columns(2)
         with left:
             st.download_button("⬇️ Download CSV", edited.to_csv(index=False).encode("utf-8-sig"),
-                "hasil_ekstraksi_dnp.csv", "text/csv", use_container_width=True)
+                "hasil_ekstraksi_dnp.csv", "text/csv", width='stretch')
         with right:
             st.download_button("⬇️ Download Excel (.xlsx)", excel_bytes(edited),
                 "hasil_ekstraksi_dnp.xlsx",
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                use_container_width=True)
+                width='stretch')
 else:
     st.markdown("### Data yang diekstrak:\n- **Nomor ST** — nomor Surat Tugas dari header PDF.\n- **Nama** — nama pegawai tanpa NIP/pangkat.\n- **Total Biaya Riil** — angka Rupiah yang bisa dihitung di Excel.")
