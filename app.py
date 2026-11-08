@@ -6,7 +6,7 @@ import streamlit as st
 
 st.set_page_config(page_title="DNP PDF Extractor", page_icon="📄", layout="wide")
 
-COLS = ["Nomor ST", "Nama", "Total Biaya Riil"]
+COLS = ["Nomor ST", "Nama", "Tanggal", "Total Biaya Riil"]
 
 if "uploader_key" not in st.session_state:
     st.session_state["uploader_key"] = 1
@@ -42,14 +42,15 @@ def person_name(cell):
 def columns(table):
     for i, row in enumerate(table):
         headers = [norm(x).lower() for x in row]
-        name = amount = number = None
+        name = amount = date = number = None
         for j, h in enumerate(headers):
             if "nama" in h and "nip" in h: name = j
+            if "tanggal" in h and "berangkat" in h: date = j
             if "total biaya" in h and "riil" in h: amount = j
             if h == "no" or h.startswith("no "): number = j
         if name is not None and amount is not None:
-            return i, name, amount, number
-    return None, None, None, None
+            return i, name, date, amount, number
+    return None, None, None, None, None
 
 def extract_pdf(data, filename):
     found, notes = [], []
@@ -75,16 +76,17 @@ def extract_pdf(data, filename):
                 before = len(found)
                 for table in tables:
                     if not table: continue
-                    hi, ni, ai, oi = columns(table)
+                    hi, ni, di, ai, oi = columns(table)
                     if hi is None: continue
                     for row in table[hi+1:]:
                         if not row: continue
                         no = norm(row[oi]) if oi is not None and oi < len(row) else ""
                         if not no.isdigit(): continue
                         name = person_name(row[ni] if ni < len(row) else "")
+                        date = row[di] if ni < len(row) else ""
                         amount = rupiah(row[ai] if ai < len(row) else "")
                         if name and amount is not None:
-                            found.append({"Nomor ST": st_number, "Nama": name, "Total Biaya Riil": amount})
+                            found.append({"Nomor ST": st_number, "Nama": name, "Tanggal": date, "Total Biaya Riil": amount})
                 if len(found) == before and (page.extract_text() or "").strip():
                     notes.append(f"{filename}, halaman {page_no}: tabel tidak dikenali; periksa PDF atau gunakan OCR jika berupa scan.")
     except Exception as e:
